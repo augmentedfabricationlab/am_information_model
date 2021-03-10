@@ -6,7 +6,7 @@ import json
 
 from compas.datastructures import Network
 
-from .node import Node
+from .layer import Layer
 
 from .utilities import FromToData
 from .utilities import FromToJson
@@ -24,19 +24,17 @@ class AMIM(FromToData, FromToJson):
     Attributes
     ----------
     network : :class:`compas.Network`, optional
-    nodes : list of :class:`Node`, optional
-        A list of model nodes.
+    layers : list of :class:`Layer`, optional
+        A list of model layers.
     attributes : dict, optional
         User-defined attributes of the model.
         Built-in attributes are:
         * name (str) : ``'Assembly'``
-    default_element_attribute : dict, optional
-        User-defined default attributes of the elements of the model.
+    default_layer_attribute : dict, optional
+        User-defined default attributes of the layers of the model.
         The built-in attributes are:
         * is_planned (bool) : ``False``
         * is_placed (bool) : ``False``
-    default_connection_attributes : dict, optional
-        User-defined default attributes of the connections of the model.
 
     Examples
     --------
@@ -44,13 +42,13 @@ class AMIM(FromToData, FromToJson):
     """
 
     def __init__(self,
-                 nodes=None,
+                 layers=None,
                  attributes=None,
-                 default_node_attribute=None,
+                 default_layer_attribute=None,
                  default_connection_attributes=None):
 
         self.network = Network()
-        self.network.attributes.update({'name': 'Assembly'})
+        self.network.attributes.update({'name': 'AMModel'})
 
         if attributes is not None:
             self.network.attributes.update(attributes)
@@ -60,15 +58,16 @@ class AMIM(FromToData, FromToJson):
             'is_placed': False
         })
 
-        if default_node_attribute is not None:
-            self.network.default_node_attributes.update(default_node_attribute)
+        if default_layer_attribute is not None:
+            self.network.default_node_attributes.update(default_layer_attribute)
 
         if default_connection_attributes is not None:
             self.network.default_edge_attributes.update(default_connection_attributes)
 
-        if nodes:
-            for node in nodes:
-                self.add_node(node)
+        if layers:
+            for layer in layers:
+                self.add_layer(layer)
+                
 
     @property
     def name(self):
@@ -79,8 +78,8 @@ class AMIM(FromToData, FromToJson):
     def name(self, value):
         self.network.attributes['name'] = value
 
-    def number_of_nodes(self):
-        """Compute the number of nodes of the model.
+    def number_of_layers(self):
+        """Compute the number of layers of the model.
 
         Returns
         -------
@@ -100,29 +99,28 @@ class AMIM(FromToData, FromToJson):
 
         """
         return self.network.number_of_edges()
-
+    
     @property
     def data(self):
         """Return a data dictionary of the model.
         """
         # Network data does not recursively serialize to data...
         d = self.network.data
-
-        # so we need to trigger that for elements stored in nodes
+        #print(d.keys())
+        # so we need to trigger that for layers stored in nodes
         node = {}
-        for vkey, vdata in d['node'].items():
-            node[vkey] = {key: vdata[key] for key in vdata.keys() if key != 'node'}
-            node[vkey]['node'] = vdata['node'].to_data()
+        for vkey, vdata in d['data']['node'].items():
+            node[vkey] = {key: vdata[key] for key in vdata.keys() if key != 'layer'}
+            node[vkey]['layer'] = vdata['layer'].to_data()
 
-        d['node'] = node
-
+        d['data']['node'] = node
         return d
 
     @data.setter
     def data(self, data):
         # Deserialize elements from node dictionary
-        for _vkey, vdata in data['node'].items():
-            vdata['node'] = Node.from_data(vdata['node'])
+        for _vkey, vdata in data['data']['node'].items():
+            vdata['layer'] = Layer.from_data(vdata['layer'])
 
         self.network = Network.from_data(data)
 
@@ -130,15 +128,15 @@ class AMIM(FromToData, FromToJson):
         """Clear all the model data."""
         self.network.clear()
 
-    def add_node(self, node, key=None, attr_dict={}, **kwattr):
+    def add_layer(self, layer, key=None, attr_dict={}, **kwattr):
         """Add an element to the model.
 
         Parameters
         ----------
-        element : Element
-            The element to add.
+        layer : Layer
+            The layer to add.
         attr_dict : dict, optional
-            A dictionary of element attributes. Default is ``None``.
+            A dictionary of layer attributes. Default is ``None``.
 
         Returns
         -------
@@ -146,13 +144,9 @@ class AMIM(FromToData, FromToJson):
             The identifier of the element.
         """
         attr_dict.update(kwattr)
-        x, y, z = node.frame.point
-        key = self.network.add_node(key=key, attr_dict=attr_dict,
-                                      x=x, y=y, z=z, node=node)
-        if key == 0:
-            pass
-        else:
-            self.add_edge(key-1, key)
+        x, y, z = layer.start_node.frame.point
+        key = self.network.add_node(key=key, attr_dict=attr_dict, x=x, y=y, z=z, layer=layer)
+
         return key
 
     def add_edge(self, u, v, attr_dict=None, **kwattr):
@@ -187,8 +181,8 @@ class AMIM(FromToData, FromToJson):
         -------
         None
         """
-        for _k, node in self.nodes(data=False):
-            node.transform(transformation)
+        for _k, layer in self.nodes(data=False):
+            layer.transform(transformation)
 
     def transformed(self, transformation):
         """Returns a transformed copy of this model.
@@ -201,23 +195,23 @@ class AMIM(FromToData, FromToJson):
         -------
         Assembly
         """
-        manufacturing = self.copy()
-        manufacturing.transform(transformation)
-        return manufacturing
+        model = self.copy()
+        model.transform(transformation)
+        return model
 
     def copy(self):
         """Returns a copy of this model.
         """
         raise NotImplementedError
 
-    def node(self, key, data=False):
-        """Get an element by its key."""
+    def layer(self, key, data=False):
+        """Get an layer by its key."""
         if data:
-            return self.network.node[key]['node'], self.network.node[key]
+            return self.network.node[key]['layer'], self.network.node[key]
         else:
-            return self.network.node[key]['node']
+            return self.network.node[key]['layer']
 
-    def nodes(self, data=False):
+    def layers(self, data=False):
         """Iterate over the elements of the model.
 
         Parameters
@@ -235,10 +229,10 @@ class AMIM(FromToData, FromToJson):
         """
         if data:
             for vkey, vattr in self.network.nodes(True):
-                yield vkey, vattr['node'], vattr
+                yield vkey, vattr['layer'], vattr
         else:
             for vkey in self.network.nodes(data):
-                yield vkey, self.network.node[vkey]['node']
+                yield vkey, self.network.node[vkey]['layer']
 
     def connections(self, data=False):
         """Iterate over the connections of the network.

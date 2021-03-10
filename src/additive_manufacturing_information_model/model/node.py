@@ -94,6 +94,9 @@ class Node:
         node.data = data
         return node
 
+    def to_data(self):
+        return self.data
+
     @property
     def data(self):
         """Returns the data dictionary that represents the node.
@@ -114,12 +117,7 @@ class Node:
         # (unlike the property getter that defaults to `self.frame`)
         if self._tool_frame:
             d['_tool_frame'] = self._tool_frame.to_data()
-
-        if self.trajectory:
-            d['trajectory'] = [f.to_data() for f in self.trajectory]
-
-        if self.path:
-            d['path'] = [f.to_data() for f in self.path]
+        d['radius'] = self.radius
 
         return d
 
@@ -128,12 +126,8 @@ class Node:
         self.frame = Frame.from_data(data['frame'])
         if '_tool_frame' in data:
             self.tool_frame = Frame.from_data(data['_tool_frame'])
-        if 'trajectory' in data:
-            #from compas_fab.robots import JointTrajectory
-            #self.trajectory = JointTrajectory.from_data(data['trajectory'])
-            self.trajectory = _deserialize_from_data(data['trajectory'])
-        if 'path' in data:
-            self.path = [Frame.from_data(d) for d in data['path']]
+        self.radius = data['radius']
+
 
     def transform(self, transformation):
         """Transforms the node.
@@ -152,8 +146,6 @@ class Node:
         self.frame.transform(transformation)
         if self._tool_frame:
             self.tool_frame.transform(transformation)
-        if self.path:
-            [f.transform(transformation) for f in self.path]
 
     def transformed(self, transformation):
         """Returns a transformed copy of this node.
@@ -183,7 +175,4 @@ class Node:
         node = Node(self.frame.copy())
         if self._tool_frame:
             node.tool_frame = self.tool_frame.copy()
-        if self.path:
-            node.path = [f.copy() for f in self.path]
-
         return node
