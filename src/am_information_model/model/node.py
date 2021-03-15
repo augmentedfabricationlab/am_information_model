@@ -35,7 +35,6 @@ class Node:
     def __init__(self, frame, radius=0):
         self.frame = frame
         self._tool_frame = frame
-
         self.radius = radius
 
     @classmethod
@@ -112,11 +111,9 @@ class Node:
         >>> print(node.data)
         """
         d = dict(frame=self.frame.to_data())
-
-        # Only include gripping plane if attribute is really set
-        # (unlike the property getter that defaults to `self.frame`)
-        if self._tool_frame:
-            d['_tool_frame'] = self._tool_frame.to_data()
+        
+        d['frame'] = self.frame.to_data()
+        d['_tool_frame'] = self._tool_frame.to_data()
         d['radius'] = self.radius
 
         return d
@@ -124,10 +121,9 @@ class Node:
     @data.setter
     def data(self, data):
         self.frame = Frame.from_data(data['frame'])
+        self.radius = data['radius']
         if '_tool_frame' in data:
             self.tool_frame = Frame.from_data(data['_tool_frame'])
-        self.radius = data['radius']
-
 
     def transform(self, transformation):
         """Transforms the node.

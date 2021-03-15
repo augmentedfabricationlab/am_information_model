@@ -1,6 +1,6 @@
-__title__ = 'additive_manufacturing_information_model'
+__title__ = 'am_information_model'
 __description__ = 'Additive Manufacturing Information Model'
-__url__ = 'https://github.com/augmentedfabricationlab/additive_manufacturing_information_model'
+__url__ = 'https://github.com/augmentedfabricationlab/am_information_model'
 __version__ = '0.0.1'
 __author__ = 'Augmented Fabrication Lab'
 __author_email__ = 'gido.dielemans@tum.de'
