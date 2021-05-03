@@ -11,15 +11,15 @@ from .layer import Layer
 from .utilities import FromToData
 from .utilities import FromToJson
 
-__all__ = ['AMIM']
+__all__ = ['AMModel']
 
 
-class AMIM(FromToData, FromToJson):
+class AMModel(FromToData, FromToJson):
     """A data structure for non-discrete element fabrication.
 
     A model is essentially a network of nodes.
-    Each geometrical node is represented by a node of the network.
-    Each line drawn between nodes is represented by an edge of the network.
+    Each geometrical node is represented by a layer in fabrication.
+    The sequence of layers in fabrication is represented by an edge of the network.
 
     Attributes
     ----------
@@ -29,7 +29,7 @@ class AMIM(FromToData, FromToJson):
     attributes : dict, optional
         User-defined attributes of the model.
         Built-in attributes are:
-        * name (str) : ``'Assembly'``
+        * name (str) : ``'AMModel'``
     default_layer_attribute : dict, optional
         User-defined default attributes of the layers of the model.
         The built-in attributes are:

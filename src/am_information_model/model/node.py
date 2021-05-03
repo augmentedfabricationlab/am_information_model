@@ -20,11 +20,6 @@ class Node:
     _tool_frame : :class:`compas.geometry.Frame`
         The frame of the node where the robot's tool should attach to.
 
-    node_type : node type identifier
-        0: starting node
-        1: joined node
-        2: ending node
-
     radius : for joined nodes, a blend radius is required
 
     Examples
@@ -32,7 +27,7 @@ class Node:
 
     """
 
-    def __init__(self, frame, radius=0):
+    def __init__(self, frame=None, radius=0):
         self.frame = frame
         self._tool_frame = frame
         self.radius = radius
@@ -89,7 +84,7 @@ class Node:
         Node
             The constructed node.
         """
-        node = cls(Frame.worldXY())
+        node = cls()
         node.data = data
         return node
 
@@ -112,18 +107,20 @@ class Node:
         """
         d = dict(frame=self.frame.to_data())
         
-        d['frame'] = self.frame.to_data()
-        d['_tool_frame'] = self._tool_frame.to_data()
-        d['radius'] = self.radius
+        if self._tool_frame:
+            d['_tool_frame'] = self._tool_frame.to_data()
+        if self.radius:
+            d['radius'] = self.radius
 
         return d
 
     @data.setter
     def data(self, data):
         self.frame = Frame.from_data(data['frame'])
-        self.radius = data['radius']
         if '_tool_frame' in data:
             self.tool_frame = Frame.from_data(data['_tool_frame'])
+        if 'radius' in data:
+            self.radius = data['radius']
 
     def transform(self, transformation):
         """Transforms the node.
@@ -171,4 +168,6 @@ class Node:
         node = Node(self.frame.copy())
         if self._tool_frame:
             node.tool_frame = self.tool_frame.copy()
+        if self.radius:
+            node.radius = self.radius
         return node

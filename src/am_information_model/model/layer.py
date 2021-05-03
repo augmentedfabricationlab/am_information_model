@@ -16,12 +16,15 @@ class Layer:
 
     Attributes
     ----------
-    nodes : :list:class:`Node`
+    network : :class:`compas.Network`, optional
+    nodes : :list:class:`Node`, optional
         Nodes discribing the layer geometry
-
+    attributes : dict, optional
+        User-defined attributes of the model.
+        Built-in attributes are:
+        * name (str) : ``'Layer'``
     trajectory : :class:`compas_fab.robots.JointTrajectory`
         The robot trajectory in joint space
-
     path : :list: :class:`compas.geometry.Frame`
         The robot tool path in cartesian space
 
@@ -30,8 +33,17 @@ class Layer:
 
     """
 
-    def __init__(self, nodes=None):
-        self.nodes = nodes
+    def __init__(self, nodes=None, attributes=None):
+        self.network = Network()
+        self.network.attributes.update({'name': 'Layer'})
+
+        if attributes is not None:
+            self.network.attributes.update(attributes)
+        
+        if nodes:
+            for node in nodes:
+                self.add_node(node)
+
         self.trajectory = None
 
     @classmethod
@@ -46,30 +58,44 @@ class Layer:
         return cls(nodes)
 
     @property
-    def start_node(self):
-        if self.nodes:
-            return self.nodes[0]
-        else:
-            return "No nodes defined"
+    def name(self):
+        """str : The name of the layer."""
+        return self.network.attributes.get('name', None)
 
-    @property
-    def end_node(self):
-        if self.nodes:
-            return self.nodes[len(self.nodes)-1]
+    @name.setter
+    def name(self, value):
+        self.network.attributes['name'] = value
+    
+    def number_of_nodes(self):
+        return self.network.number_of_nodes()
+    
+    def number_of_edges(self):
+        return self.network.number_of_edges()
+
+    def node(self, key, data=False):
+        if data:
+            return self.network.node[key]['node'], self.network,node[key]
         else:
-            return "No nodes defined"
+            return self.network.node[key]['node']
+
+    def nodes(self, data=False):
+        if data:
+            for vkey, vattr in self.network.nodes(True):
+                yield vkey, vattr['node'], vattr
+        else:
+            for vkey in self.network.nodes(data):
+                yield vkey, self.network.node[vkey]['node']
+
+    def edges(self, data=False):
+        return self.network.edges(data)
 
     @property
     def path(self):
-        if self.nodes:
-            return [node.frame for node in self.nodes]
-        else:
-            return "No nodes defined"
+        return [node.frame for key, node in self.nodes(False)]
 
     @path.setter
     def path(self, p):
         self.__path = p
-
 
     @classmethod
     def from_data(cls, data):
@@ -109,34 +135,49 @@ class Layer:
         >>> layer = Layer()
         >>> print(layer.data)
         """
-        d = dict()
+        d = self.network.data
+        
+        node = {}
+        for vkey, vdata in d['data']['node'].items():
+            node[vkey] = {key: vdata[key] for key in vdata.keys() if key != 'node'}
+            node[vkey]['node'] = vdata['node'].to_data()
 
-        if self.nodes:
-            d['nodes'] = [f.to_data() for f in self.nodes]
+        d['data']['node'] = node
+
         if self.trajectory:
-            d['trajectory'] = [f.to_data() for f in self.trajectory]
+            d['data']['attributes']['trajectory'] = [f.to_data() for f in self.trajectory]
         if self.path:
-            d['path'] = [f.to_data() for f in self.path]
+            d['data']['attributes']['path'] = [f.to_data() for f in self.path]
 
         return d
 
     @data.setter
     def data(self, data):
-        if 'nodes' in data:
-            self.nodes = [Node.from_data(d) for d in data['nodes']]
+        for _vkey, vdata in data['data']['node'].items():
+            vdata['node'] = Node.from_data(vdata['node'])
+        
         if 'trajectory' in data:
-            self.trajectory = _deserialize_from_data(data['trajectory'])
+            self.trajectory = _deserialize_from_data(data['data']['attributes']['trajectory'])
         if 'path' in data:
-            self.path = [Frame.from_data(d) for d in data['path']]
+            self.path = [Frame.from_data(d) for d in data['data']['attributes']['path']]
+        
+        self.network = Network.from_data(data)
+
+    def add_node(self, node, key=None, attr_dict={}, **kwattr):
+        attr_dict.update(kwattr)
+        key = self.network.add_node(key=key, attr_dict=attr_dict, node=node)
+        return key
+    
+    def add_edge(self, u, v, attr_dict=None, **kwattr):
+        return self.network.add_edge(u, v, attr_dict, **kwattr)
 
     def transform(self, transformation):
-        for n in self.nodes:
-            n.transform(transformation)
-        pass
+        for key, node in self.nodes(data=False):
+            node.transform(transformation)
 
     def transformed(self, transformation):
         layer = self.copy()
-        layer.nodes = [n.transformed(transformation) for n in layer.nodes]
+        layer.transform(transformation)
         return layer
 
     def copy(self):
@@ -146,5 +187,5 @@ class Layer:
         -------
         Layer
         """
-        layer = Layer.from_nodes(self.nodes)
-        return layer
+        return Layer(self.nodes[1], self.network.attributes)
+        
