@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 from compas.geometry import Frame
+from compas.datastructures import Network
 
 from .node import Node
 
@@ -187,5 +188,9 @@ class Layer:
         -------
         Layer
         """
-        return Layer(self.nodes[1], self.network.attributes)
+        nodes = []
+        for key, node in self.nodes():
+            nodes.append(node.copy())
+        print(nodes)
+        return Layer(nodes, self.network.attributes)
         

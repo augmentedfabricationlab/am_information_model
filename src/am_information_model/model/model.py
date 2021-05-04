@@ -144,9 +144,7 @@ class AMModel(FromToData, FromToJson):
             The identifier of the element.
         """
         attr_dict.update(kwattr)
-        x, y, z = layer.start_node.frame.point
-        key = self.network.add_node(key=key, attr_dict=attr_dict, x=x, y=y, z=z, layer=layer)
-
+        key = self.network.add_node(key=key, attr_dict=attr_dict, layer=layer)
         return key
 
     def add_edge(self, u, v, attr_dict=None, **kwattr):

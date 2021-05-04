@@ -14,7 +14,7 @@ class Node:
 
     Attributes
     ----------
-    _frame : :class:`compas.geometry.Frame`
+    frame : :class:`compas.geometry.Frame`
         The frame of the node.
 
     _tool_frame : :class:`compas.geometry.Frame`
@@ -43,15 +43,6 @@ class Node:
         """
         node = cls(frame)
         return node
-
-    @property
-    def frame(self):
-        """Frame of the node."""
-        return self._frame
-
-    @frame.setter
-    def frame(self, frame):
-        self._frame = frame.copy()
 
     @property
     def tool_frame(self):
