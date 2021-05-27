@@ -31,6 +31,8 @@ class Node:
         self.frame = frame
         self._tool_frame = frame
         self.radius = radius
+        self.ur_speed = None
+        self.ext_speed = None
 
     @classmethod
     def from_frame(cls, frame):
