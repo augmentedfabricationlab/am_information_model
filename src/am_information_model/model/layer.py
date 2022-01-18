@@ -34,9 +34,10 @@ class Layer:
 
     """
 
-    def __init__(self, nodes=None, attributes=None):
+    def __init__(self, nodes=None, attributes=None, edges=None):
         self.network = Network()
         self.network.attributes.update({'name': 'Layer'})
+        self.is_constructed = False
 
         if attributes is not None:
             self.network.attributes.update(attributes)
@@ -75,7 +76,7 @@ class Layer:
 
     def node(self, key, data=False):
         if data:
-            return self.network.node[key]['node'], self.network,node[key]
+            return self.network.node[key]['node'], self.network.node[key]
         else:
             return self.network.node[key]['node']
 

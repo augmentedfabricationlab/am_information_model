@@ -33,6 +33,9 @@ class Node:
         self.radius = radius
         self.ur_speed = None
         self.ext_speed = None
+        self.is_constructed = False
+        self.extruder_state = 1
+        self.extruder_speed = 400
 
     @classmethod
     def from_frame(cls, frame):
