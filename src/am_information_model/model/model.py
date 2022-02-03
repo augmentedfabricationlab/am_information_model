@@ -179,7 +179,7 @@ class AMModel(FromToData, FromToJson):
         -------
         None
         """
-        for _k, layer in self.nodes(data=False):
+        for _k, layer in self.layers(data=False):
             layer.transform(transformation)
 
     def transformed(self, transformation):
@@ -200,7 +200,10 @@ class AMModel(FromToData, FromToJson):
     def copy(self):
         """Returns a copy of this model.
         """
-        raise NotImplementedError
+        layers = []
+        for key, layer in self.layers():
+            layers.append(layer.copy())
+        return AMModel(layers, self.network.attributes)
 
     def layer(self, key, data=False):
         """Get an layer by its key."""
