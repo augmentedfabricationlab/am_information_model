@@ -31,11 +31,11 @@ class Node:
         self.frame = frame
         self._tool_frame = frame
         self.radius = radius
-        self.ur_speed = None
-        self.ext_speed = None
+        self.ur_speed = 0
         self.is_constructed = False
-        self.extruder_state = 1
-        self.extruder_speed = 400
+        self.ext_state = 0
+        self.ext_speed = 0
+        self.air_state = 0
 
     @classmethod
     def from_frame(cls, frame):
@@ -81,7 +81,7 @@ class Node:
             The constructed node.
         """
         node = cls()
-        node.data = data
+        node.data(data)
         return node
 
     def to_data(self):
@@ -101,13 +101,16 @@ class Node:
         >>> node = Node(Frame.worldXY())
         >>> print(node.data)
         """
-        d = dict(frame=self.frame.to_data())
-        
+        d = dict()
+        d['frame'] = self.frame.to_data()
         if self._tool_frame:
             d['_tool_frame'] = self._tool_frame.to_data()
-        if self.radius:
-            d['radius'] = self.radius
-
+        d['radius'] = self.radius
+        d['ur_speed'] = self.ur_speed
+        d['is_constructed'] = self.is_constructed
+        d['ext_state'] = self.ext_state
+        d['ext_speed'] = self.ext_speed
+        d['air_state'] = self.air_state
         return d
 
     @data.setter
@@ -115,8 +118,12 @@ class Node:
         self.frame = Frame.from_data(data['frame'])
         if '_tool_frame' in data:
             self.tool_frame = Frame.from_data(data['_tool_frame'])
-        if 'radius' in data:
-            self.radius = data['radius']
+        self.radius = data['radius']
+        self.ur_speed = data['ur_speed']
+        self.is_constructed = data['is_constructed']
+        self.ext_state = data['ext_state']
+        self.ext_speed = data['ext_speed']
+        self.air_state = data['air_state']
 
     def transform(self, transformation):
         """Transforms the node.
@@ -164,6 +171,10 @@ class Node:
         node = Node(self.frame.copy())
         if self._tool_frame:
             node.tool_frame = self.tool_frame.copy()
-        if self.radius:
-            node.radius = self.radius
+        node.radius = self.radius
+        node.ur_speed = self.ur_speed
+        node.is_constructed = self.is_constructed
+        node.ext_state = self.ext_state
+        node.ext_speed = self.ext_speed
+        node.air_state = self.air_state
         return node

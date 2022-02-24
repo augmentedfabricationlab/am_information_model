@@ -36,7 +36,8 @@ class Layer:
 
     def __init__(self, nodes=None, attributes=None, edges=None):
         self.network = Network()
-        self.network.attributes.update({'name': 'Layer'})
+        self.network.attributes.update({'name': 'Layer',
+                                        'is_constructed': False})
         self.is_constructed = False
 
         if attributes is not None:
@@ -145,7 +146,7 @@ class Layer:
             node[vkey]['node'] = vdata['node'].to_data()
 
         d['data']['node'] = node
-
+        d['data']['is_constructed'] = self.is_constructed
         if self.trajectory:
             d['data']['attributes']['trajectory'] = [f.to_data() for f in self.trajectory]
         if self.path:
@@ -158,6 +159,8 @@ class Layer:
         for _vkey, vdata in data['data']['node'].items():
             vdata['node'] = Node.from_data(vdata['node'])
         
+        if 'is_constructed' in data:
+            self.is_constructed = _deserialize_from_data(data['data']['attributes']['is_constructed'])
         if 'trajectory' in data:
             self.trajectory = _deserialize_from_data(data['data']['attributes']['trajectory'])
         if 'path' in data:
@@ -192,6 +195,5 @@ class Layer:
         nodes = []
         for key, node in self.nodes():
             nodes.append(node.copy())
-        print(nodes)
         return Layer(nodes, self.network.attributes)
         
