@@ -4,12 +4,6 @@ from __future__ import division
 
 import json
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
-
 __all__ = [
     'FromToData',
     'FromToJson',
