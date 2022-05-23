@@ -4,8 +4,6 @@ from __future__ import print_function
 
 from compas.geometry import Frame
 
-from .utilities import _deserialize_from_data
-
 __all__ = ['Node']
 
 
@@ -29,13 +27,12 @@ class Node:
 
     def __init__(self, frame=None, radius=0):
         self.frame = frame
-        self._tool_frame = frame
         self.radius = radius
-        self.ur_speed = 0
+        self.robot_vel = 0
         self.is_constructed = False
         self.ext_state = 0
         self.ext_speed = 0
-        self.air_state = 0
+        self.material_supply = 0
 
     @classmethod
     def from_frame(cls, frame):
@@ -50,21 +47,9 @@ class Node:
         return node
 
     @property
-    def tool_frame(self):
-        """tool frame of the node"""
-        if not self._tool_frame:
-            self._tool_frame = self.frame.copy()
-
-        return self._tool_frame
-
-    @tool_frame.setter
-    def tool_frame(self, frame):
-        self._tool_frame = frame.copy()
-
-    @property
     def pose_quaternion(self):
         """ formats the node's tool frame to a pose quaternion and returns the pose"""
-        return list(self._tool_frame.point) + list(self._tool_frame.quaternion)
+        return list(self.frame.point) + list(self.frame.quaternion)
 
     @classmethod
     def from_data(cls, data):
@@ -103,27 +88,23 @@ class Node:
         """
         d = dict()
         d['frame'] = self.frame.to_data()
-        if self._tool_frame:
-            d['_tool_frame'] = self._tool_frame.to_data()
         d['radius'] = self.radius
-        d['ur_speed'] = self.ur_speed
+        d['robot_vel'] = self.robot_vel
         d['is_constructed'] = self.is_constructed
         d['ext_state'] = self.ext_state
         d['ext_speed'] = self.ext_speed
-        d['air_state'] = self.air_state
+        d['material_supply'] = self.material_supply
         return d
 
     @data.setter
     def data(self, data):
         self.frame = Frame.from_data(data['frame'])
-        if '_tool_frame' in data:
-            self.tool_frame = Frame.from_data(data['_tool_frame'])
         self.radius = data['radius']
-        self.ur_speed = data['ur_speed']
+        self.robot_vel = data['robot_vel']
         self.is_constructed = data['is_constructed']
         self.ext_state = data['ext_state']
         self.ext_speed = data['ext_speed']
-        self.air_state = data['air_state']
+        self.material_supply = data['material_supply']
 
     def transform(self, transformation):
         """Transforms the node.
@@ -140,8 +121,6 @@ class Node:
         --------
         """
         self.frame.transform(transformation)
-        if self._tool_frame:
-            self.tool_frame.transform(transformation)
 
     def transformed(self, transformation):
         """Returns a transformed copy of this node.
@@ -169,12 +148,10 @@ class Node:
         Node
         """
         node = Node(self.frame.copy())
-        if self._tool_frame:
-            node.tool_frame = self.tool_frame.copy()
         node.radius = self.radius
-        node.ur_speed = self.ur_speed
+        node.robot_vel = self.robot_vel
         node.is_constructed = self.is_constructed
         node.ext_state = self.ext_state
         node.ext_speed = self.ext_speed
-        node.air_state = self.air_state
+        node.material_supply = self.material_supply
         return node
