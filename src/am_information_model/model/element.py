@@ -19,7 +19,7 @@ class Element(ExtendedGraph):
         return self.get_nodes_where({"node_type": "path"}, data, "path")
 
     def get_path(self, key, data=False):
-        self.get_node(key, data, "robot")
+        self.get_node(key, data, "path")
 
     def add_path(self, path, key=None, 
                  parent_path="last", parent_robot="any"):
