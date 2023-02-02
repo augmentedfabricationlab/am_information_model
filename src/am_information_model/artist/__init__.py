@@ -1,23 +1,23 @@
-"""
-********************************************************************************
-compas_assembly.rhino
-********************************************************************************
+# """
+# ********************************************************************************
+# compas_assembly.rhino
+# ********************************************************************************
 
-.. currentmodule:: compas_assembly.rhino
+# .. currentmodule:: compas_assembly.rhino
 
-This package defines various classes and functions for working with assemblies
-in Rhino.
+# This package defines various classes and functions for working with assemblies
+# in Rhino.
 
 
-Classes
-=======
+# Classes
+# =======
 
-.. autosummary::
-    :toctree: generated/
-    :nosignatures:
+# .. autosummary::
+#     :toctree: generated/
+#     :nosignatures:
 
-    BlockArtist
-    AssemblyArtist
+#     BlockArtist
+#     AssemblyArtist
 
-"""
-from .artist import FabricationArtist
+# """
+# from .artist import FabricationArtist
