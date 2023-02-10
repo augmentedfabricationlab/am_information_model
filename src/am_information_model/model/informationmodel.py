@@ -8,21 +8,23 @@ __all__ = [
 
 
 class InformationModel(ExtendedGraph):
-    def __init__(self, name="InformationModel"):
-        super(InformationModel, self).__init__(name)
-        self._last_element = None
+    def __init__(self, name="InformationModel", **kwargs):
+        super(InformationModel, self).__init__(name, *kwargs)
+        self.attributes.update({
+            "_last_element" : None
+        })
 
     def robots(self, data=False):
         return self.get_nodes_where({"node_type": "robot"}, data)
 
     def elements(self, data=False):
-        return self.get_nodes_where({"node_type": "element"}, data)
+        return self.get_nodes_where({"node_type": "element"}, data, "element")
 
-    def get_robot(self, key, data=False):
-        self.get_node(key, data, "robot")
+    def get_robot(self, key):
+        return self.get_node(key, "robot")
 
-    def get_element(self, key, data=False):
-        self.get_node(key, data, "element")
+    def get_element(self, key):
+        return self.get_node(key, "element")
 
     def add_robot(self, robot, key=None):
         # if robots is not an empty list
@@ -35,7 +37,6 @@ class InformationModel(ExtendedGraph):
     def add_element(self, element, key=None,
                     parent_element="last", parent_robot="any"):
         self.add_named_node(element, key, parent_element)
-        self._last_element = key
 
 
 

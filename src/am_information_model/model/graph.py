@@ -5,8 +5,8 @@ __all__ = ['ExtendedGraph']
 
 
 class ExtendedGraph(Graph):
-    def __init__(self, name="ExtendedGraph"):
-        super(ExtendedGraph, self).__init__(name)
+    def __init__(self, name="ExtendedGraph", **kwargs):
+        super(ExtendedGraph, self).__init__(name, *kwargs)
 
     def get_nodes_where(self, arg, data=False, attr=None):
         for key in self.nodes_where(arg):
@@ -15,12 +15,9 @@ class ExtendedGraph(Graph):
             else:
                 yield key
 
-    def get_node(self, key, data=False, attr=None):
+    def get_node(self, key, attr="node"):
         if self.has_node(key):
-            if data:
-                return key, self.node_attribute(key, attr)
-            else:
-                return key
+            return self.node_attribute(key, attr)
         else:
             return None
 
@@ -34,7 +31,8 @@ class ExtendedGraph(Graph):
         if 'last' not in locals():
             yield -1
 
-    def get_key(self, keys, id="first"):
+    def get_key(self, id="first"):
+        keys = self.nodes()
         if id == "first":
             return next(keys)
         elif id == "last":
@@ -58,7 +56,7 @@ class ExtendedGraph(Graph):
             return prefix+str(id)
     
     def get_last_key(self, node_type="node"):
-        return getattr(self, "_last_{}".format(node_type))
+        return self.attributes.get("_last_{}".format(node_type))
 
     def get_next_key(self, keys, prefix=""):
         id = max(list(self.get_ids(keys)))+1
@@ -72,6 +70,7 @@ class ExtendedGraph(Graph):
         elif key in self.objects(object.name):
             print("Key already in database, value is overwritten")
         self.add_node(key, node_type=object.name, attr_dict={object.attributes.get("name"): object})
+        self.attributes.update({"_last_{}".format(object.attributes.get("name")): key})
         if parent_object is not None:
             self.add_edge(parent_object, key)
 

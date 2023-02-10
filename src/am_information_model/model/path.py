@@ -8,19 +8,26 @@ __all__ = [
 ]
 
 class Path(ExtendedGraph):
-    def __init__(self, name="path"):
-        super(Path, self).__init__(name)
-        self._last_node = None
-        self.PCF = Frame.worldXY()
+    def __init__(self, name="path", frame=None, **kwargs):
+        super(Path, self).__init__(name, *kwargs)
+        self.attributes.update({
+            "frame": frame,
+            "_last_node" : None
+        })
+
+    @property
+    def frame(self):
+        return self.attributes["frame"]
+
+    @frame.setter
+    def frame(self, frame):
+        self.attributes["frame"] = frame
 
     @classmethod
     def from_nodes(cls, nodes):
-        path = cls()
+        path = cls(frame=nodes[0].frame)
         path.add_nodes(nodes)
         return path
-
-    def get_node(self, key, data=False, attr="node"):
-        return super(Path, self).get_node(key, data, attr)
 
     def get_edge_length(self, u, v):
         if self.has_edge(u, v, True):
@@ -30,13 +37,13 @@ class Path(ExtendedGraph):
 
     def add_node(self, node, key=None, parent_node="last"):
         if parent_node == "last":
-            parent_node = self.get_last_key(node.attributes.get("name"))
+            parent_node = self.get_last_key("node")
         if self.nodes() and key is None:
             key = self.get_next_key(self.nodes(), "node_")
         elif key in self.nodes():
             print("Key already in database, value is overwritten")
         super(Path, self).add_node(key, node=node)
-        self._last_node = key
+        self.attributes["_last_node"] = key
         if parent_node is not None:
             self.add_edge(parent_node, key)
 
