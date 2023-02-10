@@ -1,5 +1,6 @@
+from .graph import ExtendedGraph
+from .edge import Edge
 
-from am_information_model.model import ExtendedGraph
 from compas.geometry import Frame
 
 __all__ = [
@@ -18,6 +19,15 @@ class Path(ExtendedGraph):
         path.add_nodes(nodes)
         return path
 
+    def get_node(self, key, data=False, attr="node"):
+        return super(Path, self).get_node(key, data, attr)
+
+    def get_edge_length(self, u, v):
+        if self.has_edge(u, v, True):
+            return self.edge_attribute((u,v),"edge").length
+        else:
+            return None
+
     def add_node(self, node, key=None, parent_node="last"):
         if parent_node == "last":
             parent_node = self.get_last_key(node.attributes.get("name"))
@@ -29,6 +39,12 @@ class Path(ExtendedGraph):
         self._last_node = key
         if parent_node is not None:
             self.add_edge(parent_node, key)
+
+    def add_edge(self, u, v):
+        nu = self.node_attribute(u, "node")
+        nv = self.node_attribute(v, "node")
+        edge = Edge.from_node_to_node(nu, nv)
+        super(Path, self).add_edge(u,v, edge=edge)
 
     def add_nodes(self, nodes, keys=None):
         if keys is None:

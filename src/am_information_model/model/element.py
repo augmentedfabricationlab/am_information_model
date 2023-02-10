@@ -1,4 +1,4 @@
-from am_information_model.model import ExtendedGraph
+from .graph import ExtendedGraph
 from compas.geometry import Frame
 
 __all__ = [

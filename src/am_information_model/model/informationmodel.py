@@ -1,4 +1,4 @@
-from am_information_model.model import ExtendedGraph
+from .graph import ExtendedGraph
 
 from compas.geometry import Frame
 
@@ -39,26 +39,26 @@ class InformationModel(ExtendedGraph):
 
 
 
-if __name__ == "__main__":
-    from compas.geometry import Frame
-    from compas.geometry import Translation
-    from am_information_model.model import Path, Node, Element
+# if __name__ == "__main__":
+#     from compas.geometry import Frame
+#     from compas.geometry import Translation
+#     from am_information_model.model import Path, Node, Element
 
-    frames = [Frame.worldXY()]*5
+#     frames = [Frame.worldXY()]*5
     
-    nodes = []
-    for i,frame in enumerate(frames):
-        nodes.append(Node(frame=frame))
-    path = Path.from_nodes(nodes)
+#     nodes = []
+#     for i,frame in enumerate(frames):
+#         nodes.append(Node(frame=frame))
+#     path = Path.from_nodes(nodes)
 
-    layers = 15
-    layer_height = 0.005
-    element = Element()
+#     layers = 15
+#     layer_height = 0.005
+#     element = Element()
 
-    for l in range(layers):
-        T = Translation.from_vector([0,0,layer_height*l])
-        new_path = path.transformed(T)
-        element.add_path(new_path)
-        print(new_path.get_node("node_0", True, "node")[1].frame)
+#     for l in range(layers):
+#         T = Translation.from_vector([0,0,layer_height*l])
+#         new_path = path.transformed(T)
+#         element.add_path(new_path)
+#         print(new_path.get_node("node_0", True, "node")[1].frame)
 
-    print(element.data)
+#     print(element.data)

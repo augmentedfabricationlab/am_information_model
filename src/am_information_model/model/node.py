@@ -33,22 +33,6 @@ class Node(Datastructure):
         self._frame = frame
 
     @property
-    def DATASCHEMA(self):
-        import schema
-
-        return schema.Schema(
-            {
-                "attributes": dict,
-                "key": int,
-                "frame": Frame
-            }
-        )
-
-    @property
-    def JSONSCHEMANAME(self):
-        return "node"
-
-    @property
     def data(self):
         data = {
             "attributes": self.attributes,

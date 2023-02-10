@@ -1,9 +1,7 @@
 from compas.datastructures import Graph
 
 
-__all__ = [
-    'ExtendedGraph'
-]
+__all__ = ['ExtendedGraph']
 
 
 class ExtendedGraph(Graph):
@@ -58,9 +56,6 @@ class ExtendedGraph(Graph):
             return id
         else:
             return prefix+str(id)
-
-    # def get_last_key(self, keys):
-    #     return self.get_key(keys, "last")
     
     def get_last_key(self, node_type="node"):
         return getattr(self, "_last_{}".format(node_type))
