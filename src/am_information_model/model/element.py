@@ -12,7 +12,19 @@ class Element(ExtendedGraph):
         self.attributes.update({
             "frame": frame,
             "_last_path": None
+            "connection_ua": None,
+            "connection_ub": None,
+            "connection_va": None,
+            "connection_vb": None,
+            "connection_wa": None,
+            "connection_wb": None
         })
+
+    @classmethod
+    def from_paths(cls, paths):
+        element = cls()
+        for path in paths:
+            element.add_path(path)
 
     @property
     def frame(self):
@@ -27,13 +39,12 @@ class Element(ExtendedGraph):
 
     def set_connection_frames(self, connection_frames=None):
         path_0 = self.get_path("path_0")
-        print(self.get_path("path_0").get_node(path_0.attributes.get("_last_node")).frame)
         self.attributes.update({
-            "connection_ua": self.get_path("path_0").get_node("node_0").frame,
-            "connection_ub": self.get_path("path_0").get_node(path_0.attributes.get("_last_node")).frame,
-            "connection_va": self.get_path("path_0").get_node("node_0").frame,
-            "connection_vb": self.get_path("path_0").get_node("node_1").frame,
-            "connection_wa": self.get_path("path_0").get_node("node_0").frame,
+            "connection_ua": path_0.get_node("node_0").frame,
+            "connection_ub": path_0.get_node(path_0.attributes.get("_last_node")).frame,
+            "connection_va": path_0.get_node("node_0").frame,
+            "connection_vb": path_0.get_node("node_1").frame,
+            "connection_wa": path_0.get_node("node_0").frame,
             "connection_wb": self.get_path(self.attributes.get("_last_path")).get_node("node_0").frame
         })
         if isinstance(connection_frames, dict):

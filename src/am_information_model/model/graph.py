@@ -73,6 +73,7 @@ class ExtendedGraph(Graph):
         self.attributes.update({"_last_{}".format(object.attributes.get("name")): key})
         if parent_object is not None:
             self.add_edge(parent_object, key)
+        return key
 
     def objects(self, obj_type="node", data=False):
         return self.get_nodes_where({"node_type": obj_type}, data, obj_type)

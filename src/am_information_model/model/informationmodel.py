@@ -36,7 +36,7 @@ class InformationModel(ExtendedGraph):
 
     def add_element(self, element, key=None,
                     parent_element="last", parent_robot="any"):
-        self.add_named_node(element, key, parent_element)
+        return self.add_named_node(element, key, parent_element)
 
 
 
