@@ -11,7 +11,7 @@ class Element(ExtendedGraph):
         self.state = False
         self.attributes.update({
             "frame": frame,
-            "_last_path": None
+            "_last_path": None,
             "connection_ua": None,
             "connection_ub": None,
             "connection_va": None,
