@@ -6,7 +6,8 @@ __all__ = ['ExtendedGraph']
 
 class ExtendedGraph(Graph):
     def __init__(self, name="ExtendedGraph", **kwargs):
-        super(ExtendedGraph, self).__init__(name, *kwargs)
+        super(ExtendedGraph, self).__init__(name)
+        self.key = kwargs.get("key")
 
     def get_nodes_where(self, arg, data=False, attr=None):
         for key in self.nodes_where(arg):
@@ -62,17 +63,17 @@ class ExtendedGraph(Graph):
         id = max(list(self.get_ids(keys)))+1
         return self.create_key(id, prefix)
 
-    def add_named_node(self, object, key=None, parent_object="last"):
-        if parent_object == "last":
-            parent_object = self.get_last_key(object.attributes.get("name"))
-        if self.objects(object.name) and key is None:
-            key = self.get_next_key(self.objects(object.name), object.name+'_')
-        elif key in self.objects(object.name):
+    def add_named_node(self, obj, key=None, parent_obj="last"):
+        if parent_obj == "last":
+            parent_obj = self.get_last_key(obj.attributes.get("node_type"))
+        if self.objects(obj.name) and key is None:
+            key = self.get_next_key(self.objects(obj.name), obj.name+'_')
+        elif key in self.objects(obj.name):
             print("Key already in database, value is overwritten")
-        self.add_node(key, node_type=object.name, attr_dict={object.attributes.get("name"): object})
-        self.attributes.update({"_last_{}".format(object.attributes.get("name")): key})
-        if parent_object is not None:
-            self.add_edge(parent_object, key)
+        self.add_node(key, node_type=obj.name, attr_dict={obj.attributes.get("name"): obj})
+        self.attributes.update({"_last_{}".format(obj.attributes.get("name")): key})
+        if parent_obj is not None:
+            self.add_edge(parent_obj, key)
         return key
 
     def objects(self, obj_type="node", data=False):

@@ -13,8 +13,8 @@ class Edge(Datastructure):
         self._vector = None
         self.vector = vector
         self.key = None
-        self.attributes= {
-            "name" : name
+        self.attributes = {
+            "name": name
         }
 
     @classmethod

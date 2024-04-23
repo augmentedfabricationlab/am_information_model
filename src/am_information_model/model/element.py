@@ -1,5 +1,8 @@
 from .graph import ExtendedGraph
 from compas.geometry import Frame
+from compas.datastructures import Mesh
+from .utilities import _deserialize_from_data
+from .utilities import _serialize_to_data
 
 __all__ = [
     'Element'
@@ -7,18 +10,44 @@ __all__ = [
 
 class Element(ExtendedGraph):
     def __init__(self, name="element", frame=None, **kwargs):
-        super(Element, self).__init__(name, *kwargs)
+        super(Element, self).__init__(name, **kwargs)
+        self.frame = frame
+        self._tool_frame = None
+
+        self._source = None
+        self._mesh = None
+
         self.state = False
         self.attributes.update({
             "frame": frame,
-            "_last_path": None,
-            "connection_ua": None,
-            "connection_ub": None,
-            "connection_va": None,
-            "connection_vb": None,
-            "connection_wa": None,
-            "connection_wb": None
+            "node_type": name,
+            "_last_path": None
         })
+        self.attributes.update(kwargs)
+
+    @property
+    def data(self):
+        data = super(Element, self).data
+        data.update({
+            "state": self.state,
+            "frame": _serialize_to_data(self.frame),
+            "_tool_frame": _serialize_to_data(self.tool_frame),
+            "_source": _serialize_to_data(self._source),
+            "_mesh": _serialize_to_data(self._mesh)
+        })
+        return data
+
+    @data.setter
+    def data(self, data):
+        super(Element, self.__class__).data.fset(self, data)
+        self.state = data.get("state")
+        if data.get('frame'):
+            self.frame = Frame.from_data(data.get('frame'))
+            self.tool_frame = Frame.from_data(data.get('frame'))
+        if data.get('_source'):
+            self._source = _deserialize_from_data(data.get('_source'))
+        if data.get('_mesh'):
+            self._mesh = Mesh.from_data(data.get('_mesh'))
 
     @classmethod
     def from_paths(cls, paths):
@@ -26,30 +55,82 @@ class Element(ExtendedGraph):
         for path in paths:
             element.add_path(path)
 
+    @classmethod
+    def from_mesh(cls, mesh, frame):
+        element = cls(frame=frame)
+        element._source = element._mesh = mesh
+        return element
+
+    @classmethod
+    def from_shape(cls, shape, frame):
+        element = cls(frame=frame)
+        element._source = shape
+        element._mesh = Mesh.from_shape(element._source)
+    
+    @classmethod
+    def from_box(cls, box):
+        """Construct an element from a box primitive.
+
+        Parameters
+        ----------
+        box : :class:`compas.geometry.Box`
+            Box primitive describing the element.
+
+        Returns
+        -------
+        :class:`Element`
+            New instance of element.
+        """
+        return cls.from_shape(box, box.frame)
+
+    @property
+    def mesh(self):
+        """Mesh of the element."""
+        if not self._source:
+            return None
+
+        if self._mesh:
+            return self._mesh
+
+        if isinstance(self._source, Mesh):
+            return self._source
+        else:
+            self._mesh = Mesh.from_shape(self._source)
+            return self._mesh
+        
+    @mesh.setter
+    def mesh(self, mesh):
+        self._source = self._mesh = mesh
+
     @property
     def frame(self):
-        return self.attributes["frame"]
+        """Frame of the element."""
+        return self._frame
 
     @frame.setter
     def frame(self, frame):
-        self.attributes["frame"] = frame
+        if frame is not None:
+            self._frame = frame.copy()
+        else:
+            self._frame = None
+    
+    @property
+    def tool_frame(self):
+        """tool frame of the element"""
+        if self._tool_frame is None and self.frame is not None:
+            self._tool_frame = self.frame.copy()
+        return self._tool_frame
 
-    def check_state(self):
-        pass
+    @tool_frame.setter
+    def tool_frame(self, frame):
+        if frame is not None:
+            self._tool_frame = frame.copy()
+        else:
+            self._tool_frame = None
 
-    def set_connection_frames(self, connection_frames=None):
-        path_0 = self.get_path("path_0")
-        self.attributes.update({
-            "connection_ua": path_0.get_node("node_0").frame,
-            "connection_ub": path_0.get_node(path_0.attributes.get("_last_node")).frame,
-            "connection_va": path_0.get_node("node_0").frame,
-            "connection_vb": path_0.get_node("node_1").frame,
-            "connection_wa": path_0.get_node("node_0").frame,
-            "connection_wb": self.get_path(self.attributes.get("_last_path")).get_node("node_0").frame
-        })
-        if isinstance(connection_frames, dict):
-            self.attributes.update(connection_frames)
-
+    @property
+    def centroid(self):
+        return self._mesh.centroid()
 
     def paths(self, data=False):
         return self.get_nodes_where({"node_type": "path"}, data, "path")
@@ -62,6 +143,12 @@ class Element(ExtendedGraph):
         self.add_named_node(path, key, parent_path)
     
     def transform(self, T):
+        self.frame.transform(T)
+        self.tool_frame.transform(T)
+        if self._source:
+            self._source.transform(T)
+        if self._mesh:
+            self._mesh.transform(T)
         for key, path in self.paths(data=True):
             path.transform(T)
     

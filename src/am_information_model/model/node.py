@@ -15,6 +15,7 @@ class Node(Datastructure):
         self.key = None
         self.attributes= {
             "name" : name,
+            "node_type" : "node",
             "state" : None,
             "path_width" : None,
             "path_height" : None,

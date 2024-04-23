@@ -11,7 +11,9 @@ class Path(ExtendedGraph):
     def __init__(self, name="path", frame=None, **kwargs):
         super(Path, self).__init__(name, *kwargs)
         self.attributes.update({
+            "node_type": "path",
             "frame": frame,
+            "direction": "clockwise",
             "_last_node" : None
         })
 

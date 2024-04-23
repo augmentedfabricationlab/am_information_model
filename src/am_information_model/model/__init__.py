@@ -4,3 +4,4 @@ from .path import *
 from .node import *
 from .edge import *
 from .informationmodel import *
+from .utilities import *
