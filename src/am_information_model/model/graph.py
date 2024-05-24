@@ -6,7 +6,9 @@ __all__ = ['ExtendedGraph']
 
 class ExtendedGraph(Graph):
     def __init__(self, name="ExtendedGraph", **kwargs):
-        super(ExtendedGraph, self).__init__(name)
+        super(ExtendedGraph, self).__init__(kwargs, name=name)
+        self.default_node_attributes = {}
+        self.default_edge_attributes = {}
         self.key = kwargs.get("key")
 
     def get_nodes_where(self, arg, data=False, attr=None):
@@ -70,7 +72,8 @@ class ExtendedGraph(Graph):
             key = self.get_next_key(self.objects(obj.name), obj.name+'_')
         elif key in self.objects(obj.name):
             print("Key already in database, value is overwritten")
-        self.add_node(key, node_type=obj.name, attr_dict={obj.attributes.get("name"): obj})
+        print(obj)
+        node = self.add_node(key, node_type=obj.name, attr_dict={obj.attributes.get("name"): obj})
         self.attributes.update({"_last_{}".format(obj.attributes.get("name")): key})
         if parent_obj is not None:
             self.add_edge(parent_obj, key)
