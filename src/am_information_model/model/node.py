@@ -10,6 +10,13 @@ __all__ = [
 
 
 class Node(Data):
+    # DATASCHEMA = {
+    #     "type": "object",
+    #     "properties": {
+    #         "frame": Frame.DATASCHEMA,
+    #     },
+    #     "required": ["frame"],
+    # }
         
     def __init__(self, name="node", frame=None, **kwargs):
         super(Node, self).__init__(name=name)
