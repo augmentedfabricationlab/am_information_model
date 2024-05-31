@@ -1,15 +1,18 @@
 
-from compas.datastructures import Datastructure
+# from compas.datastructures import Datastructure
+from compas.data import Data
 from compas.geometry import Frame
+import compas
 
 __all__ = [
     'Node'
 ]
 
 
-class Node(Datastructure):
+class Node(Data):
+        
     def __init__(self, name="node", frame=None, **kwargs):
-        super(Node, self).__init__()
+        super(Node, self).__init__(name=name)
         self._frame = None
         self.frame = frame
         self.key = None
@@ -34,20 +37,31 @@ class Node(Datastructure):
         self._frame = frame
 
     @property
-    def data(self):
-        data = {
+    def __data__(self):
+        return {
+            "name": self.name,
             "attributes": self.attributes,
             "key": self.key,
-            "frame": self.frame.data
+            "frame": self.frame.__data__
+            # "frame": self.frame.__data__
         }
-        return data
     
-    @data.setter
-    def data(self, data):
-        self.attributes.update(data["attributes"] or {})
-        self.key = data["key"]
-        self.frame.data = data["frame"]
+    # @data.setter
+    # def data(self, data):
+    #     self.attributes.update(data["attributes"] or {})
+    #     self.key = data["key"]
+    #     self.frame.data = data["frame"]
     
+    @classmethod
+    def __from_data__(cls, data):
+        new_node = cls(
+            name = data.get("name"),
+            frame = Frame.__from_data__(data.get("frame"))
+
+        )
+        new_node.attributes.update(data.get("attributes"))
+        return new_node
+
     @property
     def robot_velocity(self):
         if (None not in [self._path_width, self._path_height,
@@ -153,3 +167,5 @@ class Node(Datastructure):
         node = self.copy()
         node.transform(T)
         return node
+    
+# if __name__ is "__main__":
