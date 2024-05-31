@@ -9,13 +9,26 @@ __all__ = [
 
 class Path(ExtendedGraph):
     def __init__(self, name="path", frame=None, **kwargs):
-        super(Path, self).__init__(name, *kwargs)
+        super(Path, self).__init__(name=name, *kwargs)
         self.attributes.update({
             "node_type": "path",
             "frame": frame,
             "direction": "clockwise",
             "_last_node" : None
         })
+
+    @property
+    def data(self):
+        data = {
+            "attributes": self.attributes
+        }
+        return data
+    
+    @classmethod
+    def __from_data__(cls, data):
+        path = cls()
+        path.attributes.update(data["attributes"])
+        return path
 
     @property
     def frame(self):
