@@ -63,7 +63,7 @@ class Element(ExtendedGraph):
             
 
         )
-        print(data.get("attributes"))
+        # print(data.get("attributes"))
         # new_element.attributes.update(data["attributes"])
         return new_element
 
