@@ -9,11 +9,16 @@ __all__ = [
 
 class InformationModel(ExtendedGraph):
     def __init__(self, name="InformationModel", **kwargs):
-        super(InformationModel, self).__init__(name, *kwargs)
+        super(InformationModel, self).__init__(name=name)
         self.attributes.update({
             "_last_element" : None
         })
 
+    @property
+    def __data__(self):
+        data = super(InformationModel, self).__data__
+        return data
+    
     def robots(self, data=False):
         return self.get_nodes_where({"node_type": "robot"}, data)
 
@@ -37,8 +42,6 @@ class InformationModel(ExtendedGraph):
     def add_element(self, element, key=None,
                     parent_element="last", parent_robot="any"):
         return self.add_named_node(element, key, parent_element)
-
-
 
 if __name__ == "__main__":
     from compas.geometry import Frame
