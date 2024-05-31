@@ -26,34 +26,46 @@ class Element(ExtendedGraph):
         self.attributes.update(kwargs)
 
     @property
-    def data(self):
-        data = super(Element, self).data
+    def __data__(self):
+        data = super(Element, self).__data__
         data.update({
             "state": self.state,
-            "frame": _serialize_to_data(self.frame),
-            "_tool_frame": _serialize_to_data(self.tool_frame),
-            "_source": _serialize_to_data(self._source),
-            "_mesh": _serialize_to_data(self._mesh)
+            "frame": self.frame.__data__,
+            # "_tool_frame": _serialize_to_data(self.tool_frame),
+            # "_source": _serialize_to_data(self._source),
+            # "_mesh": _serialize_to_data(self._mesh)
         })
         return data
 
-    @data.setter
-    def data(self, data):
-        super(Element, self.__class__).data.fset(self, data)
-        self.state = data.get("state")
-        if data.get('frame'):
-            self.frame = Frame.from_data(data.get('frame'))
-            self.tool_frame = Frame.from_data(data.get('frame'))
-        if data.get('_source'):
-            self._source = _deserialize_from_data(data.get('_source'))
-        if data.get('_mesh'):
-            self._mesh = Mesh.from_data(data.get('_mesh'))
+    # @data.setter
+    # def data(self, data):
+    #     super(Element, self.__class__).data.fset(self, data)
+    #     self.state = data.get("state")
+    #     if data.get('frame'):
+    #         self.frame = Frame.from_data(data.get('frame'))
+    #         self.tool_frame = Frame.from_data(data.get('frame'))
+    #     if data.get('_source'):
+    #         self._source = _deserialize_from_data(data.get('_source'))
+    #     if data.get('_mesh'):
+    #         self._mesh = Mesh.from_data(data.get('_mesh'))
 
     @classmethod
     def from_paths(cls, paths):
         element = cls()
         for path in paths:
             element.add_path(path)
+
+    @classmethod
+    def __from_data__(cls, data):
+        new_element = cls(
+            name = data.get("name"),
+            frame = Frame.__from_data__(data.get("frame"))
+            
+
+        )
+        print(data.get("attributes"))
+        # new_element.attributes.update(data["attributes"])
+        return new_element
 
     @classmethod
     def from_mesh(cls, mesh, frame):
