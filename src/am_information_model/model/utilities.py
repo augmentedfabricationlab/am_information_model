@@ -6,10 +6,12 @@ __all__ = [
 
 def _serialize_to_data(obj):
     if obj is not None:
-        if hasattr(obj, "data"):
-            return obj.data
+        if isinstance(obj, dict):
+            return obj
+        elif hasattr(obj, "__data__"):
+            return obj.__data__
         else:
-            raise AttributeError
+            raise AttributeError(f"Object {obj} does not have 'data' attribute.")
     else:
         return None
 

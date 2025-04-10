@@ -1,5 +1,5 @@
 
-from compas.datastructures import Datastructure
+from compas.data import Data
 from compas.geometry import Vector
 
 __all__ = [
@@ -7,15 +7,40 @@ __all__ = [
 ]
 
 
-class Edge(Datastructure):
-    def __init__(self, name="edge", vector=None, **kwargs):
+class Edge(Data):
+    
+    DATASCHEMA = {
+        "type": "object",
+        "properties": {
+            "attributes": {"type": "object"},
+        },
+        "required": [
+            "attributes",
+        ],
+    }
+
+    def __init__(self, u=None, v=None, name="edge", vector=None, **kwargs):
         super(Edge, self).__init__()
-        self._vector = None
-        self.vector = vector
-        self.key = None
+        self.name = name
         self.attributes = {
-            "name": name
+            "obj_type": name,
+            "u": u,
+            "v": v,
+            "vector": vector,
         }
+        self.attributes.update(kwargs)
+    
+    @property
+    def __data__(self):
+            return self.attributes
+    
+    @property
+    def u(self):
+        return self.attributes.get("u")
+    
+    @property
+    def v(self):
+        return self.attributes.get("v")
 
     @classmethod
     def from_node_to_node(cls, node_0, node_1):
@@ -24,30 +49,15 @@ class Edge(Datastructure):
 
     @property
     def length(self):
-        return self.vector.length
+        if isinstance(self.vector, Vector):
+            return self.vector.length
+        return None
 
     @property
     def vector(self):
-        if not self._vector:
-            self._vector = None
-        return self._vector
+        return self.attributes.get("vector")
     
     @vector.setter
     def vector(self, vector):
-        self._vector = vector
-
-    @property
-    def data(self):
-        data = {
-            "attributes": self.attributes,
-            "key": self.key,
-            "vector": self.vector.data
-        }
-        return data
-    
-    @data.setter
-    def data(self, data):
-        self.attributes.update(data["attributes"] or {})
-        self.key = data["key"]
-        self.vector.data = data["vector"]
+        self.attributes["vector"] = vector
     

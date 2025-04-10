@@ -9,16 +9,14 @@ __all__ = [
 
 class InformationModel(ExtendedGraph):
     def __init__(self, name="InformationModel", **kwargs):
-        super(InformationModel, self).__init__(name, *kwargs)
-        self.attributes.update({
-            "_last_element" : None
-        })
+        super(InformationModel, self).__init__(name, **kwargs)
+        self.attributes.update(kwargs)
 
     def robots(self, data=False):
-        return self.get_nodes_where({"node_type": "robot"}, data)
+        return self.objects("robot", data)
 
     def elements(self, data=False):
-        return self.get_nodes_where({"node_type": "element"}, data, "element")
+        return self.objects("element", data)
 
     def get_robot(self, key):
         return self.get_node(key, "robot")
@@ -34,9 +32,8 @@ class InformationModel(ExtendedGraph):
             print("Key already in database, value is overwritten")
         self.add_node(key, node_type="robot", robot=robot)
 
-    def add_element(self, element, key=None,
-                    parent_element="last", parent_robot="any"):
-        return self.add_named_node(element, key, parent_element)
+    def add_element(self, element, key=None):
+        return self.add_named_node(element, key)
 
 
 
