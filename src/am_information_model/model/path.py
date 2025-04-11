@@ -63,7 +63,7 @@ class Path(ExtendedGraph):
     
     def transform(self, T):
         for key, node in self.nodes(data=True):
-            node["node"].transform(T)
+            node["path_node"].transform(T)
     
     def transformed(self, T):
         path = self.copy()
