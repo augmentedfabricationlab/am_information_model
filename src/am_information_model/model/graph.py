@@ -94,10 +94,11 @@ class ExtendedGraph(Graph):
     def objects(self, obj_type="node", data=False):
         for key in self.nodes():
             node_attrs = self.node_attributes(key)
-            if data:
-                yield key, node_attrs[obj_type]
-            else:
-                yield key
+            if node_attrs.get(obj_type):
+                if data:
+                    yield key, node_attrs[obj_type]
+                else:
+                    yield key
     
 
 if __name__ == "__main__":
