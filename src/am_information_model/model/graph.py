@@ -1,3 +1,4 @@
+import warnings
 from compas.datastructures import Graph
 
 
@@ -77,7 +78,7 @@ class ExtendedGraph(Graph):
                 key = max([k for k in keys])+1
         else:
             if self.has_node(key):
-                raise Warning(f"Node with key {key} already exists.")
+                warnings.warn(f"Node with key {key} already exists.")
             
         # Add the node
         node = self.add_node(key, attr_dict={obj_type: obj})
