@@ -45,8 +45,8 @@ class Path(ExtendedGraph):
         return nid
 
     def add_edge(self, u, v):
-        nu = self.node_attribute(u, "node")
-        nv = self.node_attribute(v, "node")
+        nu = self.node_attribute(u, "path_node")
+        nv = self.node_attribute(v, "path_node")
         edge = Edge.from_node_to_node(nu, nv)
         super(Path, self).add_edge(u,v, edge=edge)
 

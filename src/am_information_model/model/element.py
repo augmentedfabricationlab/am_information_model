@@ -10,6 +10,7 @@ class Element(ExtendedGraph):
     def __init__(self, name="element", frame=None, **kwargs):
         super(Element, self).__init__(name, **kwargs)
         self.frame = frame
+        self.tool_frame = frame
 
         self.attributes["obj_type"] =  name
         self.attributes.update(kwargs)
@@ -92,11 +93,12 @@ class Element(ExtendedGraph):
     
     def transform(self, T):
         self.frame.transform(T)
-        self.tool_frame.transform(T)
-        if self._source:
-            self._source.transform(T)
-        if self._mesh:
-            self._mesh.transform(T)
+        if self.tool_frame:
+            self.tool_frame.transform(T)
+        if self.source:
+            self.source.transform(T)
+        if self.mesh:
+            self.mesh.transform(T)
         for key, path in self.paths(data=True):
             path.transform(T)
     
